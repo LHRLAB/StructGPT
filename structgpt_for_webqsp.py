@@ -7,7 +7,7 @@ import re
 
 import openai
 from KnowledgeBase.KG_api import KnowledgeGraph
-from KnowledgeBase.sparql_executor import *
+# from KnowledgeBase.sparql_executor import *
 import multiprocessing as mp
 
 
