@@ -5,6 +5,8 @@ import os
 import pickle
 import re
 from tqdm import  tqdm
+from use_route import GPT_Message
+from collections import defaultdict
 
 import openai
 from KnowledgeBase.KG_api import KnowledgeGraph
@@ -125,36 +127,49 @@ class ChatGPT:
         return message
 
     def query_API_to_get_message(self, messages):
-        while True:
-            try:
-                res = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=messages,
-                    temperature=0,
-                    max_tokens=self.max_tokens,
-                    top_p=1,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                )
-                return res['choices'][0]['message']
-            except openai.error.RateLimitError:
-                print('openai.error.RateLimitError\nRetrying...')
-                time.sleep(30)
-            except openai.error.ServiceUnavailableError:
-                print('openai.error.ServiceUnavailableError\nRetrying...')
-                time.sleep(20)
-            except openai.error.Timeout:
-                print('openai.error.Timeout\nRetrying...')
-                time.sleep(20)
-            except openai.error.APIError:
-                print('openai.error.APIError\nRetrying...')
-                time.sleep(20)
-            except openai.error.APIConnectionError:
-                print('openai.error.APIConnectionError\nRetrying...')
-                time.sleep(20)
-            # except openai.error.InvalidRequestError:
-            #     print('openai.error.InvalidRequestError\nRetrying...')
-
+        if self.args.if_access_openai:
+            while True:
+                try:
+                    res = openai.ChatCompletion.create(
+                        model="gpt-3.5-turbo",
+                        messages=messages,
+                        temperature=0,
+                        max_tokens=self.max_tokens,
+                        top_p=1,
+                        frequency_penalty=0,
+                        presence_penalty=0,
+                    )
+                    return res['choices'][0]['message']
+                except openai.error.RateLimitError:
+                    print('openai.error.RateLimitError\nRetrying...')
+                    time.sleep(30)
+                except openai.error.ServiceUnavailableError:
+                    print('openai.error.ServiceUnavailableError\nRetrying...')
+                    time.sleep(20)
+                except openai.error.Timeout:
+                    print('openai.error.Timeout\nRetrying...')
+                    time.sleep(20)
+                except openai.error.APIError:
+                    print('openai.error.APIError\nRetrying...')
+                    time.sleep(20)
+                except openai.error.APIConnectionError:
+                    print('openai.error.APIConnectionError\nRetrying...')
+                    time.sleep(20)
+                # except openai.error.InvalidRequestError:
+                #     print('openai.error.InvalidRequestError\nRetrying...')
+        else:
+            output = GPT_Message(messages,"gpt-3.5-turbo")
+            cnt=0
+            while output == False:
+                if cnt>=10:
+                    output=dict()
+                    output['role']='assistant'
+                    output['content']='N/A'
+                    break
+                output = GPT_Message(messages,"gpt-3.5-turbo")
+                cnt+=1
+            return output
+        
     def parse_result(self, result, turn_type):
         content = result['content'].strip()
         if turn_type in ["initial", "question_template"]:
@@ -1153,7 +1168,7 @@ def parse_args():
     parser.add_argument('--device', default=0, help='the gpu device')
     parser.add_argument('--topk', default=10, type=int, help='retrieve the topk score paths')
     parser.add_argument('--max_tokens', default=300, type=int, help='retrieve the topk score paths')
-    parser.add_argument('--api_key', default="", type=str)
+    parser.add_argument('--api_key', default="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", type=str)
     parser.add_argument('--filter_score', default=0.0, type=float, help='the minimal cosine similarity')
     parser.add_argument('--kg_source_path', default="./data/webqsp/subgraph_2hop_triples.npy", help='the sparse triples file')
     parser.add_argument('--ent_type_path', default="./data/webqsp/ent_type_ary.npy", help='the file of entities type of sparse triples')
@@ -1163,6 +1178,7 @@ def parse_args():
     parser.add_argument('--max_triples_per_relation', default=60, type=int)
     parser.add_argument('--max_llm_input_tokens', default=3400, type=int)
     parser.add_argument('--num_process', default=1, type=int, help='the number of multi-process')
+    parser.add_argument('--if_access_openai', default=False, type=bool)
 
 
     args = parser.parse_args()

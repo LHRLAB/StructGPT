@@ -103,9 +103,9 @@ def evaluate(ori_path, pred_path, error_cases_output, write_flag):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ori_path', type=str)
-    parser.add_argument('--inp_path', type=str)
-    parser.add_argument('--error_cases_output', action="store_true")
-    parser.add_argument('--write_flag', action="store_true")
+    parser.add_argument('--ori_path', type=str, default="data/webqsp/webqsp_simple_test.jsonl")
+    parser.add_argument('--inp_path', type=str, default="outputs/webqsp/output_wo_icl_v1.jsonl")
+    parser.add_argument('--error_cases_output', action="store_true", default="outputs/webqsp/error_cases_output.jsonl")
+    parser.add_argument('--write_flag', action="store_true", default=True)
     args = parser.parse_args()
     evaluate(args.ori_path, args.inp_path, args.error_cases_output, args.write_flag)
