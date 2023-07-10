@@ -1168,7 +1168,7 @@ def parse_args():
     parser.add_argument('--device', default=0, help='the gpu device')
     parser.add_argument('--topk', default=10, type=int, help='retrieve the topk score paths')
     parser.add_argument('--max_tokens', default=300, type=int, help='retrieve the topk score paths')
-    parser.add_argument('--api_key', default="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", type=str)
+    parser.add_argument('--api_key', default="yourkey", type=str)
     parser.add_argument('--filter_score', default=0.0, type=float, help='the minimal cosine similarity')
     parser.add_argument('--kg_source_path', default="./data/webqsp/subgraph_2hop_triples.npy", help='the sparse triples file')
     parser.add_argument('--ent_type_path', default="./data/webqsp/ent_type_ary.npy", help='the file of entities type of sparse triples')
